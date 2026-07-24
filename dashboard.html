@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fynx Finance World</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg-base:#0E1512;
+    --surface-1:#161F1B;
+    --surface-2:#1D2822;
+    --surface-3:#243329;
+    --border:#2A3A33;
+    --border-soft:#22302A;
+    --text-primary:#EDEFEA;
+    --text-secondary:#8FA096;
+    --text-muted:#5E6E67;
+    --brass:#C9A24B;
+    --brass-dim:#8A7333;
+    --brass-fill:rgba(201,162,75,0.12);
+    --pos:#5CBE8A;
+    --pos-fill:rgba(92,190,138,0.10);
+    --neg:#D2665A;
+    --neg-fill:rgba(210,102,90,0.10);
+    --warn:#D6A94A;
+    --radius:10px;
+    --font-display:'Fraunces', serif;
+    --font-sans:'Inter', -apple-system, sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg-base); color:var(--text-primary); font-family:var(--font-sans); font-size:14px; -webkit-font-smoothing:antialiased; }
+  a{color:inherit; text-decoration:none;}
+  button{ font-family:var(--font-sans); }
+
+  .app{ display:flex; min-height:100vh; }
+
+  /* Sidebar */
+  .sidebar{ width:216px; flex-shrink:0; background:var(--surface-1); border-right:1px solid var(--border-soft); padding:24px 16px; display:flex; flex-direction:column; position:sticky; top:0; height:100vh; }
+  .brand{ display:flex; align-items:center; gap:9px; padding:0 8px 28px; }
+  .brand-mark{ width:26px; height:26px; border-radius:6px; background:var(--brass-fill); border:1px solid var(--brass-dim); display:flex; align-items:center; justify-content:center; color:var(--brass); font-family:var(--font-display); font-weight:500; font-size:14px; }
+  .brand-name{ font-family:var(--font-display); font-size:16px; font-weight:500; letter-spacing:0.2px; }
+  .brand-sub{ font-size:10px; color:var(--text-muted); letter-spacing:0.6px; text-transform:uppercase; margin-top:1px; }
+
+  nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-item{ display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; color:var(--text-secondary); font-size:13px; font-weight:500; cursor:pointer; border:none; background:none; width:100%; text-align:left; }
+  .nav-item:hover{ background:var(--surface-2); color:var(--text-primary); }
+  .nav-item.active{ background:var(--brass-fill); color:var(--brass); }
+  .nav-dot{ width:5px; height:5px; border-radius:50%; background:currentColor; opacity:0.55; flex-shrink:0; }
+
+  .sidebar-footer{ margin-top:auto; padding-top:20px; border-top:1px solid var(--border-soft); display:flex; align-items:center; gap:9px; }
+  .avatar{ width:28px; height:28px; border-radius:50%; background:var(--surface-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:500; color:var(--text-secondary); }
+  .user-name{ font-size:12.5px; font-weight:500; }
+  .user-plan{ font-size:11px; color:var(--text-muted); }
+
+  /* Main */
+  main{ flex:1; padding:28px 36px 60px; max-width:1180px; }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:26px; }
+  .page-title{ font-family:var(--font-display); font-size:22px; font-weight:500; }
+  .page-sub{ font-size:12px; color:var(--text-muted); margin-top:5px; }
+  .sync-row{ display:flex; align-items:center; gap:8px; margin-top:5px; }
+  .sync-dot{ width:6px; height:6px; border-radius:50%; background:var(--pos); }
+  .sync-text{ font-size:12px; color:var(--text-muted); }
+
+  .btn{ border:1px solid var(--border); background:var(--surface-1); color:var(--text-secondary); font-size:12.5px; font-weight:500; padding:8px 14px; border-radius:8px; cursor:pointer; }
+  .btn:hover{ border-color:var(--brass-dim); color:var(--brass); }
+  .btn-primary{ background:var(--brass-fill); border-color:var(--brass-dim); color:var(--brass); }
+
+  /* Metric row (dashboard) */
+  .metrics{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:22px; }
+  .metric-card{ background:var(--surface-1); border:1px solid var(--border-soft); border-radius:var(--radius); padding:16px 18px; }
+  .metric-label{ font-size:11.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:9px; }
+  .metric-value{ font-family:var(--font-mono); font-size:25px; font-weight:500; letter-spacing:-0.3px; }
+  .metric-sub{ font-size:12px; margin-top:6px; }
+  .metric-sub.pos{ color:var(--pos); }
+  .metric-sub.neutral{ color:var(--text-secondary); }
+
+  /* Ledger ribbon */
+  .ledger{ background:var(--surface-1); border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px 20px 16px; margin-bottom:22px; }
+  .ledger-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; }
+  .ledger-title{ font-size:12.5px; font-weight:500; color:var(--text-secondary); }
+  .ledger-title .brass-text{ color:var(--brass); }
+  .ledger-total{ font-family:var(--font-mono); font-size:12.5px; color:var(--text-muted); }
+  .ledger-bar{ display:flex; height:10px; border-radius:5px; overflow:hidden; border:1px solid var(--border-soft); }
+  .seg{ height:100%; }
+  .seg-dry{ background:var(--brass-dim); }
+  .seg-market{ background:var(--surface-2); border-right:1px solid var(--bg-base); border-left:1px solid var(--bg-base); }
+  .seg-vault{ background:#3E6B57; }
+  .ledger-keys{ display:flex; gap:22px; margin-top:12px; }
+  .ledger-key{ display:flex; align-items:center; gap:7px; }
+  .key-swatch{ width:8px; height:8px; border-radius:2px; }
+  .key-label{ font-size:12px; color:var(--text-secondary); }
+  .key-value{ font-family:var(--font-mono); font-size:12px; color:var(--text-primary); margin-left:2px; }
+
+  .columns{ display:grid; grid-template-columns:1.15fr 1fr; gap:16px; align-items:start; }
+
+  .panel{ background:var(--surface-1); border:1px solid var(--border-soft); border-radius:var(--radius); overflow:hidden; }
+  .panel-head{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border-soft); }
+  .panel-title{ font-size:13px; font-weight:500; }
+  .panel-tag{ font-size:11px; color:var(--text-muted); }
+
+  /* Account rows */
+  .acct-row{ display:flex; align-items:center; gap:12px; padding:13px 18px; border-bottom:1px solid var(--border-soft); }
+  .acct-row:last-child{ border-bottom:none; }
+  .acct-icon{ width:32px; height:32px; border-radius:8px; flex-shrink:0; background:var(--surface-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:600; letter-spacing:0.3px; color:var(--text-secondary); }
+  .acct-info{ flex:1; min-width:0; }
+  .acct-name{ font-size:13px; font-weight:500; }
+  .acct-type{ font-size:11.5px; color:var(--text-muted); margin-top:1px; }
+  .acct-right{ text-align:right; }
+  .acct-balance{ font-family:var(--font-mono); font-size:13.5px; font-weight:500; }
+  .acct-change{ font-size:11.5px; margin-top:2px; }
+  .acct-change.pos{ color:var(--pos); }
+  .acct-change.neg{ color:var(--neg); }
+  .acct-change.neutral{ color:var(--text-muted); }
+  .acct-disconnect{ font-size:11px; color:var(--text-muted); margin-left:14px; white-space:nowrap; }
+  .acct-disconnect:hover{ color:var(--neg); }
+
+  .group-label{ font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; padding:14px 18px 6px; }
+
+  .connect-card{ border:1px dashed var(--border); border-radius:var(--radius); padding:20px; text-align:center; margin-top:16px; }
+  .connect-card p{ font-size:12.5px; color:var(--text-muted); margin-bottom:12px; }
+
+  /* Prop firms */
+  .summary-strip{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:22px; }
+  .prop-card{ padding:16px 18px; border-bottom:1px solid var(--border-soft); }
+  .prop-card:last-child{ border-bottom:none; }
+  .prop-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; }
+  .prop-name{ font-size:13.5px; font-weight:500; }
+  .prop-balance{ font-family:var(--font-mono); font-size:13.5px; }
+  .prop-sub{ font-size:11.5px; color:var(--text-muted); margin-bottom:10px; }
+  .prop-detail-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0 10px; }
+  .prop-detail{ background:var(--surface-2); border-radius:8px; padding:8px 10px; }
+  .prop-detail-label{ font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.4px; }
+  .prop-detail-value{ font-family:var(--font-mono); font-size:12.5px; margin-top:3px; }
+
+  .dd-track{ height:5px; background:var(--surface-2); border-radius:3px; overflow:hidden; }
+  .dd-fill{ height:100%; border-radius:3px; background:var(--pos); }
+  .dd-fill.warn{ background:var(--warn); }
+  .dd-labels{ display:flex; justify-content:space-between; margin-top:6px; }
+  .dd-labels span{ font-size:10.5px; color:var(--text-muted); font-family:var(--font-mono); }
+
+  .status-pill{ font-size:10px; padding:2px 8px; border-radius:99px; font-weight:500; letter-spacing:0.2px; }
+  .status-pill.active{ background:var(--pos-fill); color:var(--pos); }
+  .status-pill.warn{ background:rgba(214,169,74,0.12); color:var(--warn); }
+
+  /* Tax vault */
+  .vault-hero{ display:flex; justify-content:space-between; align-items:center; padding:20px; }
+  .vault-amt{ font-family:var(--font-mono); font-size:28px; font-weight:500; }
+  .vault-note{ font-size:12px; color:var(--text-muted); margin-top:4px; }
+  .rule-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-top:1px solid var(--border-soft); }
+  .rule-label{ font-size:13px; }
+  .rule-desc{ font-size:11.5px; color:var(--text-muted); margin-top:2px; }
+
+  .toggle{ width:36px; height:20px; border-radius:99px; background:var(--surface-3); border:1px solid var(--border); position:relative; cursor:pointer; flex-shrink:0; }
+  .toggle.on{ background:var(--brass-fill); border-color:var(--brass-dim); }
+  .toggle-dot{ width:14px; height:14px; border-radius:50%; background:var(--text-muted); position:absolute; top:2px; left:2px; transition:left 0.15s; }
+  .toggle.on .toggle-dot{ background:var(--brass); left:18px; }
+
+  table{ width:100%; border-collapse:collapse; }
+  th{ text-align:left; font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.4px; padding:10px 18px; border-bottom:1px solid var(--border-soft); font-weight:500; }
+  td{ padding:11px 18px; font-size:12.5px; border-bottom:1px solid var(--border-soft); }
+  tr:last-child td{ border-bottom:none; }
+  td.mono{ font-family:var(--font-mono); }
+
+  /* Activity */
+  .filter-row{ display:flex; gap:8px; margin-bottom:16px; }
+  .filter-pill{ font-size:12px; padding:6px 13px; border-radius:99px; border:1px solid var(--border); color:var(--text-secondary); cursor:pointer; }
+  .filter-pill.active{ background:var(--brass-fill); border-color:var(--brass-dim); color:var(--brass); }
+
+  .date-label{ font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; padding:16px 18px 6px; }
+  .activity-row{ display:flex; gap:11px; padding:12px 18px; border-bottom:1px solid var(--border-soft); }
+  .activity-row:last-child{ border-bottom:none; }
+  .activity-dot{ width:6px; height:6px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .activity-dot.sweep{ background:var(--brass); }
+  .activity-dot.transfer{ background:var(--text-muted); }
+  .activity-dot.lock{ background:var(--pos); }
+  .activity-dot.trade{ background:#7C9CBF; }
+  .activity-text{ font-size:12.5px; color:var(--text-secondary); line-height:1.5; }
+  .activity-text b{ color:var(--text-primary); font-weight:500; }
+  .activity-time{ font-size:11px; color:var(--text-muted); margin-top:1px; }
+
+  /* Settings */
+  .settings-section{ margin-bottom:16px; }
+  .field-row{ padding:14px 18px; border-bottom:1px solid var(--border-soft); }
+  .field-row:last-child{ border-bottom:none; }
+  .field-label{ font-size:12px; color:var(--text-muted); margin-bottom:6px; }
+  .field-input{ width:100%; max-width:360px; background:var(--surface-2); border:1px solid var(--border); border-radius:7px; padding:9px 11px; color:var(--text-primary); font-size:13px; font-family:var(--font-sans); }
+  .field-input:focus{ outline:none; border-color:var(--brass-dim); }
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; padding:13px 18px; border-bottom:1px solid var(--border-soft); }
+  .toggle-row:last-child{ border-bottom:none; }
+  .toggle-row-label{ font-size:13px; }
+  .toggle-row-desc{ font-size:11.5px; color:var(--text-muted); margin-top:2px; }
+  .danger-row{ display:flex; justify-content:space-between; align-items:center; padding:16px 18px; }
+  .danger-text{ font-size:12.5px; color:var(--text-secondary); }
+  .btn-danger{ border-color:rgba(210,102,90,0.4); color:var(--neg); }
+  .btn-danger:hover{ border-color:var(--neg); background:var(--neg-fill); }
+
+  @media (max-width:860px){
+    .app{ flex-direction:column; }
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:14px 18px; position:relative; height:auto; }
+    .sidebar-footer, nav{ display:none; }
+    main{ padding:22px 18px 40px; }
+    .metrics, .summary-strip{ grid-template-columns:1fr; }
+    .columns{ grid-template-columns:1fr; }
+    .prop-detail-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">F</div>
+      <div>
+        <div class="brand-name">Fynx</div>
+        <div class="brand-sub">Finance world</div>
+      </div>
+    </div>
+    <nav>
+      <button class="nav-item active" data-view="dashboard"><span class="nav-dot"></span>Dashboard</button>
+      <button class="nav-item" data-view="accounts"><span class="nav-dot"></span>Accounts</button>
+      <button class="nav-item" data-view="propfirms"><span class="nav-dot"></span>Prop firms</button>
+      <button class="nav-item" data-view="vault"><span class="nav-dot"></span>Tax vault</button>
+      <button class="nav-item" data-view="activity"><span class="nav-dot"></span>Activity</button>
+      <button class="nav-item" data-view="settings"><span class="nav-dot"></span>Settings</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">JM</div>
+      <div>
+        <div class="user-name">Jordan M.</div>
+        <div class="user-plan">Fynx Pro</div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Good morning, Jordan</div>
+          <div class="sync-row"><span class="sync-dot"></span><span class="sync-text">All 5 accounts synced · last updated 4 minutes ago</span></div>
+        </div>
+        <button class="btn">Refresh balances</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="metric-label">Total liquid capital</div>
+          <div class="metric-value">$184,320</div>
+          <div class="metric-sub pos">▲ $3,140 today (+1.73%)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Dry powder</div>
+          <div class="metric-value">$52,180</div>
+          <div class="metric-sub neutral">Not currently in a trade</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Tax vault</div>
+          <div class="metric-value">$13,240</div>
+          <div class="metric-sub neutral">15% auto-swept from gains</div>
+        </div>
+      </div>
+
+      <div class="ledger">
+        <div class="ledger-head">
+          <div class="ledger-title">Capital <span class="brass-text">allocation</span></div>
+          <div class="ledger-total">$184,320 total</div>
+        </div>
+        <div class="ledger-bar">
+          <div class="seg seg-dry" style="width:28%"></div>
+          <div class="seg seg-market" style="width:65%"></div>
+          <div class="seg seg-vault" style="width:7%"></div>
+        </div>
+        <div class="ledger-keys">
+          <div class="ledger-key"><span class="key-swatch" style="background:var(--brass-dim)"></span><span class="key-label">Dry powder</span><span class="key-value">28%</span></div>
+          <div class="ledger-key"><span class="key-swatch" style="background:var(--surface-2); border:1px solid var(--border)"></span><span class="key-label">In market</span><span class="key-value">65%</span></div>
+          <div class="ledger-key"><span class="key-swatch" style="background:#3E6B57"></span><span class="key-label">Tax vault</span><span class="key-value">7%</span></div>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div>
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-head"><div class="panel-title">Connected accounts</div><div class="panel-tag">4 connected</div></div>
+            <div class="acct-row"><div class="acct-icon">CH</div><div class="acct-info"><div class="acct-name">Chase Total Checking</div><div class="acct-type">Bank · via Plaid</div></div><div class="acct-right"><div class="acct-balance">$18,430</div><div class="acct-change neutral">No change</div></div></div>
+            <div class="acct-row"><div class="acct-icon">AL</div><div class="acct-info"><div class="acct-name">Alpaca Brokerage</div><div class="acct-type">Broker · direct API</div></div><div class="acct-right"><div class="acct-balance">$64,200</div><div class="acct-change pos">▲ 2.1%</div></div></div>
+            <div class="acct-row"><div class="acct-icon">IB</div><div class="acct-info"><div class="acct-name">Interactive Brokers</div><div class="acct-type">Broker · direct API</div></div><div class="acct-right"><div class="acct-balance">$54,700</div><div class="acct-change neg">▼ 0.4%</div></div></div>
+            <div class="acct-row"><div class="acct-icon">TT</div><div class="acct-info"><div class="acct-name">Tastytrade</div><div class="acct-type">Broker · direct API</div></div><div class="acct-right"><div class="acct-balance">$34,750</div><div class="acct-change pos">▲ 0.8%</div></div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Recent activity</div></div>
+            <div class="activity-row"><span class="activity-dot sweep"></span><div><div class="activity-text">Swept <b>$471</b> to tax vault — realized gain on AAPL</div><div class="activity-time">2 hours ago</div></div></div>
+            <div class="activity-row"><span class="activity-dot lock"></span><div><div class="activity-text">Profit lock triggered — moved <b>$1,200</b> to savings (day up 3.2%)</div><div class="activity-time">Yesterday, 3:41 PM</div></div></div>
+            <div class="activity-row"><span class="activity-dot transfer"></span><div><div class="activity-text">Transferred <b>$5,000</b> — Chase → Alpaca</div><div class="activity-time">Yesterday, 9:12 AM</div></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-head"><div class="panel-title">Funded accounts</div><div class="panel-tag">3 active</div></div>
+            <div class="prop-card"><div class="prop-top"><div class="prop-name">FTMO — $100K Challenge</div><div class="prop-balance">$103,240</div></div><div class="prop-sub">18 days remaining</div><div class="dd-track"><div class="dd-fill" style="width:21%"></div></div><div class="dd-labels"><span>2.1% of 10% max</span><span class="status-pill active">Active</span></div></div>
+            <div class="prop-card"><div class="prop-top"><div class="prop-name">Apex Capital — $50K</div><div class="prop-balance">$47,900</div></div><div class="prop-sub">Approaching limit</div><div class="dd-track"><div class="dd-fill warn" style="width:85%"></div></div><div class="dd-labels"><span>6.8% of 8% max</span><span class="status-pill warn">Warning</span></div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Tax vault</div></div>
+            <div class="vault-hero" style="padding:16px 18px;">
+              <div><div class="vault-amt" style="font-size:19px;">$13,240</div><div class="vault-note">Set aside for next filing</div></div>
+              <div class="status-pill active">15% auto-sweep</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div class="view" id="view-accounts">
+      <div class="topbar">
+        <div><div class="page-title">Accounts</div><div class="page-sub">Every account holding your money, in one place</div></div>
+        <button class="btn btn-primary">Connect account</button>
+      </div>
+
+      <div class="panel">
+        <div class="group-label">Banking</div>
+        <div class="acct-row"><div class="acct-icon">CH</div><div class="acct-info"><div class="acct-name">Chase Total Checking</div><div class="acct-type">•••• 4821 · via Plaid · synced 4 min ago</div></div><div class="acct-right"><div class="acct-balance">$18,430</div><div class="acct-change neutral">No change today</div></div><a class="acct-disconnect">Disconnect</a></div>
+
+        <div class="group-label">Brokerage</div>
+        <div class="acct-row"><div class="acct-icon">AL</div><div class="acct-info"><div class="acct-name">Alpaca Brokerage</div><div class="acct-type">•••• 0092 · direct API · synced 4 min ago</div></div><div class="acct-right"><div class="acct-balance">$64,200</div><div class="acct-change pos">▲ 2.1% today</div></div><a class="acct-disconnect">Disconnect</a></div>
+        <div class="acct-row"><div class="acct-icon">IB</div><div class="acct-info"><div class="acct-name">Interactive Brokers</div><div class="acct-type">•••• 7710 · direct API · synced 4 min ago</div></div><div class="acct-right"><div class="acct-balance">$54,700</div><div class="acct-change neg">▼ 0.4% today</div></div><a class="acct-disconnect">Disconnect</a></div>
+        <div class="acct-row"><div class="acct-icon">TT</div><div class="acct-info"><div class="acct-name">Tastytrade</div><div class="acct-type">•••• 3345 · direct API · synced 4 min ago</div></div><div class="acct-right"><div class="acct-balance">$34,750</div><div class="acct-change pos">▲ 0.8% today</div></div><a class="acct-disconnect">Disconnect</a></div>
+
+        <div style="padding:0 18px 18px;">
+          <div class="connect-card">
+            <p>Link a bank or broker to bring its balance into your dashboard.</p>
+            <button class="btn btn-primary">Connect account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROP FIRMS -->
+    <div class="view" id="view-propfirms">
+      <div class="topbar">
+        <div><div class="page-title">Funded accounts</div><div class="page-sub">Track every prop firm challenge and payout in one view</div></div>
+        <button class="btn btn-primary">Add funded account</button>
+      </div>
+
+      <div class="summary-strip">
+        <div class="metric-card"><div class="metric-label">Total funded capital</div><div class="metric-value">$300K</div><div class="metric-sub neutral">Across 3 firms</div></div>
+        <div class="metric-card"><div class="metric-label">Combined balance</div><div class="metric-value">$303,040</div><div class="metric-sub pos">▲ $1,040 today</div></div>
+        <div class="metric-card"><div class="metric-label">Next payout</div><div class="metric-value">4 days</div><div class="metric-sub neutral">Topstep — $150K</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="prop-card">
+          <div class="prop-top"><div class="prop-name">FTMO — $100K Challenge</div><div class="prop-balance">$103,240</div></div>
+          <div class="prop-sub">Phase: Funded · started Jun 12</div>
+          <div class="prop-detail-grid">
+            <div class="prop-detail"><div class="prop-detail-label">Profit target</div><div class="prop-detail-value">$10,000</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Max daily loss</div><div class="prop-detail-value">$5,000</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Max drawdown</div><div class="prop-detail-value">$10,000</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Days remaining</div><div class="prop-detail-value">18</div></div>
+          </div>
+          <div class="dd-track"><div class="dd-fill" style="width:21%"></div></div>
+          <div class="dd-labels"><span>2.1% of 10% max drawdown used</span><span class="status-pill active">Active</span></div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-top"><div class="prop-name">Apex Capital — $50K</div><div class="prop-balance">$47,900</div></div>
+          <div class="prop-sub">Phase: Evaluation · started Jul 2</div>
+          <div class="prop-detail-grid">
+            <div class="prop-detail"><div class="prop-detail-label">Profit target</div><div class="prop-detail-value">$4,000</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Max daily loss</div><div class="prop-detail-value">$2,000</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Max drawdown</div><div class="prop-detail-value">$4,000</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Days remaining</div><div class="prop-detail-value">6</div></div>
+          </div>
+          <div class="dd-track"><div class="dd-fill warn" style="width:85%"></div></div>
+          <div class="dd-labels"><span>6.8% of 8% max drawdown used</span><span class="status-pill warn">Warning</span></div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-top"><div class="prop-name">Topstep — $150K</div><div class="prop-balance">$151,900</div></div>
+          <div class="prop-sub">Phase: Funded · payout eligible Jul 27</div>
+          <div class="prop-detail-grid">
+            <div class="prop-detail"><div class="prop-detail-label">Profit target</div><div class="prop-detail-value">—</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Max daily loss</div><div class="prop-detail-value">$3,000</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Max drawdown</div><div class="prop-detail-value">$12,000</div></div>
+            <div class="prop-detail"><div class="prop-detail-label">Next payout</div><div class="prop-detail-value">4 days</div></div>
+          </div>
+          <div class="dd-track"><div class="dd-fill" style="width:14%"></div></div>
+          <div class="dd-labels"><span>1.3% of 8% max drawdown used</span><span class="status-pill active">Active</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAX VAULT -->
+    <div class="view" id="view-vault">
+      <div class="topbar">
+        <div><div class="page-title">Tax vault</div><div class="page-sub">Money set aside automatically so tax season doesn't catch you short</div></div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="vault-hero">
+          <div><div class="vault-amt">$13,240</div><div class="vault-note">Current vault balance · set aside for your next filing</div></div>
+          <button class="btn">Withdraw</button>
+        </div>
+        <div class="rule-row">
+          <div><div class="rule-label">Auto-sweep realized gains</div><div class="rule-desc">Move a share of every realized gain into the vault automatically</div></div>
+          <div class="toggle on"><div class="toggle-dot"></div></div>
+        </div>
+        <div class="rule-row">
+          <div><div class="rule-label">Sweep percentage</div><div class="rule-desc">Applied to realized gains across all connected brokers</div></div>
+          <div style="font-family:var(--font-mono); font-size:13px; color:var(--brass);">15%</div>
+        </div>
+        <div class="rule-row">
+          <div><div class="rule-label">Estimated Q3 liability</div><div class="rule-desc">Based on realized gains so far this quarter</div></div>
+          <div style="font-family:var(--font-mono); font-size:13px;">$11,900</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Sweep history</div></div>
+        <table>
+          <tr><th>Date</th><th>Trigger</th><th>Source</th><th style="text-align:right;">Amount</th></tr>
+          <tr><td>Jul 22</td><td>Realized gain — AAPL</td><td>Alpaca</td><td class="mono" style="text-align:right;">$471</td></tr>
+          <tr><td>Jul 18</td><td>Realized gain — TSLA</td><td>Interactive Brokers</td><td class="mono" style="text-align:right;">$860</td></tr>
+          <tr><td>Jul 11</td><td>Realized gain — SPY calls</td><td>Tastytrade</td><td class="mono" style="text-align:right;">$1,215</td></tr>
+          <tr><td>Jul 3</td><td>Realized gain — NVDA</td><td>Alpaca</td><td class="mono" style="text-align:right;">$2,040</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ACTIVITY -->
+    <div class="view" id="view-activity">
+      <div class="topbar">
+        <div><div class="page-title">Activity</div><div class="page-sub">Every transfer, sweep and trade-driven move across your accounts</div></div>
+      </div>
+
+      <div class="filter-row">
+        <div class="filter-pill active">All</div>
+        <div class="filter-pill">Transfers</div>
+        <div class="filter-pill">Sweeps</div>
+        <div class="filter-pill">Trades</div>
+      </div>
+
+      <div class="panel">
+        <div class="date-label">Today</div>
+        <div class="activity-row"><span class="activity-dot sweep"></span><div><div class="activity-text">Swept <b>$471</b> to tax vault — realized gain on AAPL</div><div class="activity-time">2 hours ago</div></div></div>
+        <div class="activity-row"><span class="activity-dot trade"></span><div><div class="activity-text">Closed position — <b>AAPL</b> · +$3,140</div><div class="activity-time">3 hours ago</div></div></div>
+
+        <div class="date-label">Yesterday</div>
+        <div class="activity-row"><span class="activity-dot lock"></span><div><div class="activity-text">Profit lock triggered — moved <b>$1,200</b> to savings (day up 3.2%)</div><div class="activity-time">3:41 PM</div></div></div>
+        <div class="activity-row"><span class="activity-dot transfer"></span><div><div class="activity-text">Transferred <b>$5,000</b> — Chase → Alpaca</div><div class="activity-time">9:12 AM</div></div></div>
+
+        <div class="date-label">This week</div>
+        <div class="activity-row"><span class="activity-dot sweep"></span><div><div class="activity-text">Swept <b>$860</b> to tax vault — realized gain on TSLA</div><div class="activity-time">Jul 18</div></div></div>
+        <div class="activity-row"><span class="activity-dot transfer"></span><div><div class="activity-text">Withdrew <b>$2,500</b> — Interactive Brokers → Chase</div><div class="activity-time">Jul 17</div></div></div>
+        <div class="activity-row"><span class="activity-dot trade"></span><div><div class="activity-text">Closed position — <b>SPY calls</b> · +$1,215</div><div class="activity-time">Jul 11</div></div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="view" id="view-settings">
+      <div class="topbar">
+        <div><div class="page-title">Settings</div><div class="page-sub">Manage your profile, notifications and connected accounts</div></div>
+      </div>
+
+      <div class="panel settings-section">
+        <div class="panel-head"><div class="panel-title">Profile</div></div>
+        <div class="field-row"><div class="field-label">Full name</div><input class="field-input" value="Jordan Mitchell"></div>
+        <div class="field-row"><div class="field-label">Email</div><input class="field-input" value="jordan@fynx.app"></div>
+        <div class="field-row"><div class="field-label">Time zone</div><input class="field-input" value="Pacific Time (US)"></div>
+      </div>
+
+      <div class="panel settings-section">
+        <div class="panel-head"><div class="panel-title">Notifications</div></div>
+        <div class="toggle-row"><div><div class="toggle-row-label">Daily balance summary</div><div class="toggle-row-desc">A recap of balances and P&L each morning</div></div><div class="toggle on"><div class="toggle-dot"></div></div></div>
+        <div class="toggle-row"><div><div class="toggle-row-label">Drawdown warnings</div><div class="toggle-row-desc">Alert when a funded account nears its limit</div></div><div class="toggle on"><div class="toggle-dot"></div></div></div>
+        <div class="toggle-row"><div><div class="toggle-row-label">Tax vault sweeps</div><div class="toggle-row-desc">Notify when a sweep moves money automatically</div></div><div class="toggle"><div class="toggle-dot"></div></div></div>
+      </div>
+
+      <div class="panel settings-section">
+        <div class="panel-head"><div class="panel-title">Security</div></div>
+        <div class="toggle-row"><div><div class="toggle-row-label">Two-factor authentication</div><div class="toggle-row-desc">Require a code at sign-in</div></div><div class="toggle on"><div class="toggle-dot"></div></div></div>
+        <div class="field-row"><div class="field-label">Password</div><button class="btn" style="margin-top:2px;">Change password</button></div>
+      </div>
+
+      <div class="panel">
+        <div class="danger-row">
+          <div><div class="toggle-row-label">Delete account</div><div class="danger-text">Removes all connected accounts and data permanently</div></div>
+          <button class="btn btn-danger">Delete account</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const views = document.querySelectorAll('.view');
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      navItems.forEach(n => n.classList.remove('active'));
+      views.forEach(v => v.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById('view-' + item.dataset.view).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.toggle').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('on'));
+  });
+
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
