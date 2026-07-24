@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Join the FYNX Waitlist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
+:root{--bg:#0E1512;--surface:#161F1B;--surface2:#1D2822;--border:#2A3A33;--text:#EDEFEA;--muted:#8FA096;--brass:#C9A24B;--brass-dim:#8A7333;--error:#D2665A;--success:#5CBE8A}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,sans-serif;min-height:100vh}.wrap{max-width:1040px;margin:auto;padding:0 32px}.topnav{border-bottom:1px solid #22302A}.topnav .wrap{height:68px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:inherit}.mark{width:26px;height:26px;border-radius:6px;background:rgba(201,162,75,.12);border:1px solid var(--brass-dim);display:flex;align-items:center;justify-content:center;color:var(--brass);font-family:Fraunces,serif}.back{color:var(--muted);text-decoration:none;font-size:13px;border:1px solid var(--border);padding:8px 14px;border-radius:8px}.main{display:grid;place-items:center;padding:72px 24px}.card{width:100%;max-width:540px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:34px}.eyebrow{color:var(--brass);font-size:12px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}.card h1{font-family:Fraunces,serif;font-size:34px;line-height:1.15;margin:0 0 12px}.intro{color:var(--muted);font-size:14px;margin-bottom:26px}.field{margin-bottom:16px}.field label{display:block;font-size:12px;margin-bottom:7px;color:var(--muted)}.field input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px 14px;color:var(--text);font:14px Inter,sans-serif}.field input:focus{outline:none;border-color:var(--brass-dim)}button{width:100%;border:none;border-radius:9px;background:var(--brass);color:#241B08;padding:13px 16px;font-weight:600;font-size:14px;cursor:pointer;margin-top:5px}button:disabled{opacity:.65;cursor:not-allowed}.note{color:var(--muted);font-size:11px;margin-top:14px;text-align:center}.message{display:none;margin-top:16px;border-radius:9px;padding:12px 14px;font-size:13px}.message.error{display:block;background:rgba(210,102,90,.1);color:var(--error);border:1px solid rgba(210,102,90,.35)}.message.success{display:block;background:rgba(92,190,138,.1);color:var(--success);border:1px solid rgba(92,190,138,.35)}.success-view{display:none;text-align:center}.success-view h2{font-family:Fraunces,serif;font-size:30px;margin:0 0 12px}.success-view p{color:var(--muted)}.success-view a{display:inline-block;margin-top:18px;color:var(--brass)}
+@media(max-width:600px){.wrap{padding:0 20px}.main{padding:42px 16px}.card{padding:26px}.card h1{font-size:29px}}
+</style>
+</head>
+<body>
+<div class="topnav"><div class="wrap"><a class="brand" href="index.html"><span class="mark">F</span><span>Fynx</span></a><a class="back" href="index.html">Back to website</a></div></div>
+<main class="main">
+  <section class="card">
+    <div id="formView">
+      <div class="eyebrow">Early access</div>
+      <h1>Join the FYNX waitlist</h1>
+      <p class="intro">Enter your name and email. You will be one of the first people to know when FYNX opens.</p>
+      <form id="waitlistForm">
+        <div class="field"><label for="fullName">Full name</label><input id="fullName" name="fullName" type="text" autocomplete="name" maxlength="80" required placeholder="Your full name"></div>
+        <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" maxlength="160" required placeholder="you@email.com"></div>
+        <button id="submitBtn" type="submit">Join the waitlist</button>
+        <div id="message" class="message" role="alert"></div>
+      </form>
+      <div class="note">Your information will only be used for FYNX early-access updates.</div>
+    </div>
+    <div id="successView" class="success-view">
+      <div class="eyebrow">You're on the list</div>
+      <h2>Thank you for joining the waitlist.</h2>
+      <p>You will be one of the first people to know when FYNX launches.</p>
+      <a href="index.html">Return to the FYNX website</a>
+    </div>
+  </section>
+</main>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/12.2.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDGSYIB_YIpbWyUMJ1d-v00-xADnvaWckk",
+  authDomain: "fynx-c7a28.firebaseapp.com",
+  projectId: "fynx-c7a28",
+  storageBucket: "fynx-c7a28.firebasestorage.app",
+  messagingSenderId: "1011050657868",
+  appId: "1:1011050657868:web:2c5ad5a1b275e6c9b05ce9",
+  measurementId: "G-SDW6273VYJ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const form = document.getElementById('waitlistForm');
+const submitBtn = document.getElementById('submitBtn');
+const message = document.getElementById('message');
+
+function showMessage(text, type){
+  message.textContent = text;
+  message.className = 'message ' + type;
+}
+
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  message.className = 'message';
+  const fullName = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+
+  if (fullName.length < 2) return showMessage('Please enter your full name.', 'error');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showMessage('Please enter a valid email address.', 'error');
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Joining...';
+
+  try {
+    const existing = query(collection(db, 'waitlist'), where('email', '==', email), limit(1));
+    const snapshot = await getDocs(existing);
+
+    if (snapshot.empty) {
+      await addDoc(collection(db, 'waitlist'), {
+        fullName,
+        email,
+        createdAt: serverTimestamp(),
+        source: 'fynx-finance-world-landing-page'
+      });
+    }
+
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('successView').style.display = 'block';
+  } catch (error) {
+    console.error(error);
+    showMessage('We could not save your information. Please try again.', 'error');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Join the waitlist';
+  }
+});
+</script>
+</body>
+</html>
