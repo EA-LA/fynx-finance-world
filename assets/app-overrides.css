@@ -1,0 +1,10 @@
+/* Shared product-area finish. Kept separate so application logic remains untouched. */
+:root{--bg:#050706;--surface:#0b0f0d;--surface2:#101612;--border:#222b27;--text:#f3f5f4;--muted:#8e9692;--brass:#72d7b1;--brass-dim:#3d8067;--red:#e2766d;--green:#72d7b1;--bg-base:#050706;--surface-1:#0b0f0d;--surface-2:#101612;--surface-3:#18211d;--border-soft:#19211d;--text-primary:#f3f5f4;--text-secondary:#929a96;--text-muted:#626c67;--brass-fill:rgba(114,215,177,.1);--pos:#72d7b1;--pos-fill:rgba(114,215,177,.1);--radius:12px;--font-display:'Inter',sans-serif}
+body{background-color:#050706!important;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px)!important;background-size:56px 56px!important}
+.topnav,.top,.sidebar{background:rgba(7,10,8,.94)!important;backdrop-filter:blur(16px)}
+.brand-mark,.mark{border-color:#2b4439!important;background:rgba(114,215,177,.08)!important;color:#72d7b1!important}
+.card,.panel,.metric,.metric-card,.ledger,.visual,.price{box-shadow:0 18px 55px rgba(0,0,0,.18)}
+.btn-primary,.submit,button[type="submit"]{background:#f3f5f4!important;color:#070907!important;border-color:#f3f5f4!important}
+.card h1,.card h2,h1,.page-title{font-family:'Inter',sans-serif!important;letter-spacing:-.045em!important}
+input:focus{border-color:#72d7b1!important;box-shadow:0 0 0 3px rgba(114,215,177,.08)}
+@media(prefers-reduced-motion:no-preference){.metric-card,.panel,.card{animation:appRise .5s ease both}.metric-card:nth-child(2){animation-delay:.06s}.metric-card:nth-child(3){animation-delay:.12s}@keyframes appRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}}
