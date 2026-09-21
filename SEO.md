@@ -1,0 +1,1 @@
+Each public page has a specific title and description. Owner pages use noindex. GitHub deployment history records http://elhamamini.cc/fynx-finance-world/, but HTTP currently returns 404 and HTTPS fails TLS. Canonical URLs and a sitemap must be added once the working public domain is confirmed; do not point Google at the broken historical hostname.
